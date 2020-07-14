@@ -1,48 +1,45 @@
 pragma solidity ^0.6.2;
-
-contract RootSC{
-    address root;
-    mapping (address=> User) users;
-    mapping (address=> bool) exists;
-
-    constructor() public{
-        root = msg.sender;
-        addUser(msg.sender,"Root");
-        exists[msg.sender] = true;
-    }
-
-    function addUser(address k, string memory tUser) private{
-        User userN = new User(k,tUser);
-        users[k] = userN;
-    }    
-
-    function addAdmor(address k) public{
-        require(msg.sender == root);//we enforce the root to be the executor
-        require(exists[k]==false);
-        addUser(k,"Admor");
-        exists[k] = true;
-        
-    }
-    
-    function getTypeUser(address k) view public returns (string memory){
-        User userN = users[k];
-        //require(userN.getType()!="");
-        string memory regreso = userN.getType();
-        return regreso;        
-    }
-
-}
+import "Event.sol";
 
 contract User{
+    address father;
     address user;
+    address contractAdd;
     string typeUser;
+    Event eventC;
     
-    constructor(address k,string memory typeU) public{
+    constructor(address k,string memory typeU, address fatherL) public{
         user = k;
         typeUser = typeU;
+        father = fatherL;
     }
 
     function getType() view public returns (string memory){
         return typeUser;
     }    
+
+    function isAdmor() view public returns (bool){
+        bool answer=false;
+        if(keccak256(abi.encodePacked(typeUser))==keccak256(abi.encodePacked("Admor"))){
+            answer=true;
+        }
+        return answer;
+    }
+    
+    function setContractAdd(address conAdd) public{
+        contractAdd = conAdd;
+    }
+
+    function getContractAdd() view public returns(address){
+        return contractAdd;
+    }
+ 
+     function setEvent(Event eventL) public{
+        eventC = eventL;
+    }
+
+    function getEvent() view public returns(Event){
+        return eventC;
+    }
+   
 }

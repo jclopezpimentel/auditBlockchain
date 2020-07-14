@@ -45,6 +45,7 @@ router.post('/exec/who', restToken.who); //not token public is available
 router.post('/exec/rootConstructor', restRoot.createRoot); 
 router.post('/exec/getAddContrR', restRoot.getAddContrR);
 router.post('/exec/getAddTransR', restRoot.getAddTransR);
+router.post('/exec/getEvents', restRoot.getEvents);
 //************************************************
 //ADMINISTRATOR
 router.post('/exec/admorConstructor', restAdmor.createAdmor); 

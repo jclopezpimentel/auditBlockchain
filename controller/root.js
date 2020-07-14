@@ -81,6 +81,7 @@ initializer.getAddTransR = function (par,resp) {
 
 //save root in the smart contract
 function createRootSC(req,resp){
+	console.log("Entrando");
 	//rootCreation involves create root in database and create a smart contract
 	compiler = require('solc');
 	const fs = require('fs'); 
@@ -129,7 +130,8 @@ function createRootSC(req,resp){
 	    	.on('receipt', function(receipt){
 	     		receiptG = receipt;
 	     	User_.save(req,receiptG.contractAddress,receiptG.transactionHash,statusV.rootCreation,resp,1); //add user to the database
-	     }).on('error', console.error); 
+	     }).on('error', console.error);
+	     console.log(rootContract.getPastEvents('CreateUser',{fromBlock:0,toBlock:'latest'})); 
 	}catch(err){
 		resultado = 60;
 	}
@@ -233,6 +235,7 @@ function createAdmorSC(req,res){
 	     		User_.save(req,"No contract address in this transaction",receiptG.transactionHash,statusV.admorCreation,res,4); //add user to the database
 	     		candado=true;
 	     	}).on('error', console.error);
+	     console.log(rootContract.getPastEvents('CreateUser',{fromBlock:0,toBlock:'latest'})); 
 	     //*********************************************************************
 	}catch(err){
 		resultado = 60;
@@ -315,5 +318,59 @@ initializer.AddAdmor=function(req,res){
 	}
 }
 
+initializer.getEvents=function(req,res){
+	//We evaluate if some of the parameters are empty
+	//In case, return an error	
+	var r=result.someFieldIsEmpty(req);
+	if (r==0){
+		console.log("Estoy en getEvents");
+		//var from=req.body.from;
+		//var to=req.body.to;
+		var addressContract = req.body.addressContract; //obtain Contract Address of the root
+		var addressR = req.body.addressR; //obtain root address
+		//var addressReceipt = "0x13eFbdFE1C5A690020eD22e5E188bc138A241d2b";
+		//var addressR = "0x12eF4A1D1435354a6A00Bd76cf2Bd8B5879FD9Eb";
+		compiler = require('solc');
+		const fs = require('fs'); 
+		const rootSol = 'RootSC.sol';
+		sourceCode = fs.readFileSync(rootSol, 'UTF8').toString();
+		const path = require('path');	
+		const solc = require('solc');
+		const veh = path.resolve('', '', rootSol);
+		const source = fs.readFileSync(veh, 'UTF-8');
+		var input = {
+		    language: 'Solidity',
+		    sources: {
+		        rootSol : {
+		            content: source
+		        }
+		    },
+		    settings: {
+		        outputSelection: {
+		            '*': {
+		                '*': [ '*' ]
+		            }
+		        }
+		    }
+		}; 
+
+		compiledCode = JSON.parse(solc.compile(JSON.stringify(input)));
+		contracts = compiledCode.contracts;
+		rContract = contracts.rootSol.RootSC.abi; //it depends of the Contract name
+
+		var Web3 = require('web3');
+		var web3 = new Web3(Web3.givenProvider || blockchainAddress);
+
+		var rootContract = new web3.eth.Contract(rContract, addressContract);
+   		rootContract.getPastEvents('CreateUser',{fromBlock:0,toBlock:'latest'},function(error, result){
+   			if(!error){
+   				console.log(result);
+   				res.send(result);
+   			}
+   		}); 
+
+	}
+
+}
 
 module.exports = initializer;

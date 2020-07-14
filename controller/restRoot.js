@@ -37,6 +37,16 @@ initializer.getAddTransR = function (req, res){
 	root.getAddTransR(obj,res);
 }
 
+initializer.getEvents = function (req, res){
+	var addressContract=req.query.addressContract;
+	var addressR=req.query.addressR;
+	var obj={body:{addressContract:addressContract,
+					addressR:addressR
+				  }
+			};
+	root.getEvents(obj,res);
+}
+
 
 
 module.exports = initializer;
